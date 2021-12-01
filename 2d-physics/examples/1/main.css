@@ -1,6 +1,7 @@
 #css-changed{
     animation-name: move;
     animation-duration: 2s;
+    animation-fill-mode: forwards;
 }
 
 @keyframes move{
