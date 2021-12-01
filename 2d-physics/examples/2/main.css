@@ -2,6 +2,7 @@
     animation-name: rotate;
     animation-duration: 2s;
     animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
     translate: 225px 100px;
     transform-origin: 200px 100px;
 }
