@@ -1,0 +1,16 @@
+#css-changed{
+    animation-name: rotate;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+    translate: 225px 100px;
+    transform-origin: 200px 100px;
+}
+
+@keyframes rotate{
+    from{
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    } 
+}
