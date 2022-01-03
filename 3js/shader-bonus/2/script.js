@@ -1,59 +1,43 @@
 const vshader = `
 varying vec2 vUv;
+
+// 2D Random
+vec2 random () {
+    return vec2(${Math.random()}, ${Math.random()});
+}
+
 void main() {	
   vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+  gl_Position = vec4( random(), random() );
 }
 `
 const fshader = `
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 uniform float u_time;
+uniform float u_random;
 
 varying vec2 vUv;
 
 // 2D Random
-float random (vec2 st) {
-    return fract(sin(dot(st, vec2(10.0,10.0))) * u_time * 1.0);
+vec2 random () {
+    return vec2(${Math.random()}, ${Math.random()});
 }
 
 // 2D Noise based on Morgan McGuire @morgan3d
 // https://www.shadertoy.com/view/4dS3Wd
-float noise (vec2 st) {
-    vec2 i = floor(st);
-    vec2 f = fract(st);
-
-    // Four corners in 2D of a tile
-    float a = random(i);
-    float b = random(i + vec2(0.5, 0.0));
-    float c = random(i + vec2(0.5, 0.0));
-    float d = random(i + vec2(0.5, 0.0));
-
-    // Smooth Interpolation
-
-    // Cubic Hermine Curve.  Same as SmoothStep()
-    vec2 u = f*f*(3.0-2.0*f);
-    //u = smoothstep(0.,1.,f);
+vec4 noise (vec2 n) {
+    vec2 f = ceil(n);
+    vec2 r = random();
+    vec2 u = f * f * (3.0 - 2.0 * f );
 
     // Mix 4 corners percentages
-    return mix(a, b, u.x) +
-            (c - a)* u.y * (1.0 - u.x) +
-            (d - b) * u.x * u.y;
+    return vec4( r, u );
 }
 
 void main() {
-    vec2 st = vUv;
-
-    // Scale the coordinate system to see
-    // some noise in action
-    vec2 pos = vec2( st * 20.0);
-    //pos.y -= u_time;
-
-    // Use the noise function
-    //float n = noise(pos);
-    float n = noise(u_mouse / pos);
-
-    gl_FragColor = vec4(vec3(n), 1.0);
+    vec2 v = vUv;
+    gl_FragColor = noise(v);
 }
 `
 
@@ -71,13 +55,14 @@ document.body.appendChild( renderer.domElement );
 
 const clock = new THREE.Clock();
 
-const geometry = new THREE.PlaneGeometry( 2, 2 );
+const geometry = new THREE.PlaneGeometry( 1, 1 );
 const uniforms = {
   u_color_a: { value: new THREE.Color(0xff0000) },
   u_color_b: { value: new THREE.Color(0x00ffff) },
   u_time: { value: 0.0 },
   u_mouse: { value:{ x:0.0, y:0.0 }},
-  u_resolution: { value:{ x:0, y:0 }}
+  u_resolution: { value:{ x:0, y:0 }},
+  u_random: { value: Math.random() }
 }
 
 const material = new THREE.ShaderMaterial( {
@@ -130,5 +115,6 @@ function onWindowResize( event ) {
 function animate() {
   requestAnimationFrame( animate );
   uniforms.u_time.value += clock.getDelta();
+  uniforms.u_random += Math.random();
   renderer.render( scene, camera );
 }
